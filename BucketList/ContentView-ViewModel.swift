@@ -26,6 +26,8 @@ extension ContentView {
         @Published private(set) var locations: [Location] // read all you want, but you can't set from outside
         @Published var selectedPlace: Location?
         @Published var isUnlocked = false
+        @Published var isErrorAlertShown = false
+        @Published var errorShown = ""
         
         let savePath = FileManager.documentsDirectory.appendingPathComponent("SavedPlaced")
         
@@ -81,10 +83,18 @@ extension ContentView {
                         }
                     } else {
                         // problem
+                        Task { @MainActor in
+                            self.isErrorAlertShown = true
+                            self.errorShown = authenticationError?.localizedDescription ?? "Unknown Error"
+                        }
                     }
                 }
             } else {
                 // no biometrics
+                Task { @MainActor in
+                    self.isErrorAlertShown = true
+                    self.errorShown = error?.localizedDescription ?? "Unknown Error"
+                }
             }
         }
     }
